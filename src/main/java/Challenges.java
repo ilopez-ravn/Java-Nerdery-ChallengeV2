@@ -173,16 +173,16 @@ public class Challenges {
 
         }
 
-        String strFact = "";
+        StringBuilder strFact = new StringBuilder();
         for(int i=(maxLength-1) - factorialLength - 1; i <= (maxLength-1); ++i) {
-            strFact += result[i];
+            strFact.append(result[i]);
         }
 
         System.out.println();
         int resultInt = 0;
         while (!strFact.isEmpty()) {
             int digit = Integer.parseInt(strFact.substring(0, 1));
-            strFact = strFact.substring(1);
+            strFact = new StringBuilder(strFact.substring(1));
             resultInt += digit;
         }
 
@@ -200,12 +200,12 @@ public class Challenges {
      */
     public String decrypt(List<Integer> ascivalues) {
         int sum = 0;
-        String strValue = "";
+        StringBuilder strValue = new StringBuilder();
         for(int i = 0; i < ascivalues.size(); ++i){
             sum += ascivalues.get(i);
-            strValue += (char) sum;
+            strValue.append((char) sum);
         }
-        return strValue;
+        return strValue.toString();
     }
 
     /**
