@@ -1,8 +1,13 @@
 /* (C)2024 */
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import mocks.CallCostObject;
+import mocks.CallSummary;
 import mocks.CardWinner;
 import mocks.TotalSummary;
+
+import static java.util.stream.Collectors.*;
 
 public class ChallengeStream {
 
@@ -20,8 +25,29 @@ public class ChallengeStream {
      * @param player1  hand, player2 hand
      */
     public CardWinner calculateWinningHand(List<Integer> player1, List<Integer> player2) {
-        // YOUR CODE HERE...
-        return new CardWinner();
+        String hand1 = player1.stream()
+                .sorted((a, b) -> b.compareTo(a) )
+                .limit(2)
+                .map(Object::toString)
+                .collect(Collectors.joining(""));
+
+        String hand2 = player2.stream()
+                .sorted((a, b) -> b.compareTo(a) )
+                .limit(2)
+                .map(Object::toString)
+                .collect(Collectors.joining(""));
+
+        CardWinner winner;
+        int hand1Int = Integer.parseInt(hand1),
+                hand2Int = Integer.parseInt(hand2);
+        if (hand1Int > hand2Int)
+            winner = new CardWinner("P1", hand1Int);
+        else if (hand2Int > hand1Int)
+            winner = new CardWinner("P2", hand2Int);
+        else
+            winner = new CardWinner("TIE", hand1Int);
+
+        return winner;
     }
 
     /**
@@ -43,7 +69,44 @@ public class ChallengeStream {
      * @returns {CallsResponse}  - Processed information
      */
     public TotalSummary calculateCost(List<CallCostObject> costObjectList) {
-        // YOUR CODE HERE...
-        return new TotalSummary();
+         Integer totalCalls =
+                costObjectList.stream()
+                        .collect(
+                                groupingBy((callCostObject -> {
+                                    String type = callCostObject.getType();
+                                    String identifier = callCostObject.getIdentifier().split("-")[0];
+                                    return type+"-"+identifier;
+                                }))
+                        ).size();
+
+        List<CallSummary> callSummary = costObjectList.stream()
+               .map(call -> {
+                    int duration = call.getDuration();
+                    double _totalCost = 0.0;
+                    String type = call.getType();
+                    if (type.equals("Local"))
+                        _totalCost =  duration * 0.2;
+                    else if (type.equals("National")) {
+                        if(duration >= 3)
+                            _totalCost =  3*1.2+(duration-3)*0.48;
+                        else
+                            _totalCost =  duration*1.2;
+                    } else if (type.equals("International")) { // Intern
+                        if(duration >= 3)
+                            _totalCost =  3*7.56+(duration-3)*3.03;
+                        else
+                            _totalCost =  duration*7.56;
+                    }
+
+
+                    return new CallSummary(call, _totalCost);
+
+                }).toList();
+
+        Double totalCost = callSummary.stream()
+                .map(CallSummary::getTotalCost)
+                .reduce(0.0, Double::sum);
+
+        return new TotalSummary(callSummary, totalCalls, totalCost);
     }
 }
