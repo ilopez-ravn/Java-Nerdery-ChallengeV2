@@ -86,6 +86,16 @@ public class Challenges {
     The last 3 digits for the sum of powers from 1 to 10 is "317"
     ***** */
 
+
+    /*
+    In my power function I manually multiply n times the n number
+    because I only want to save the `length` last digits because it's what I care about and
+    it will avoid the number to overflow.
+    This works because we only save the first (length+1) that we need.
+    I also pass the `length+1` to avoid loosing an important number
+
+    This could've been solved also using BigInteger
+    */
     public long Power(int n, int length) {
         long result = n;
         // Only save length digits
@@ -123,9 +133,20 @@ public class Challenges {
     Since 10! === 3628800 and you sum 3 + 6 + 2 + 8 + 8 + 0 + 0
     ***** */
 
+
+    /*
+    In this challenge as we will need to calculate big factorials,
+    the variable may overflow and approximations methods are of no use.
+
+    So, I decided to represent the numbers that I need to multiply as array where each position is a digit.
+    This makes the multiplication scalable for bigger numbers without big multiplications or memory overflows
+
+    This could've been solved also using BigInteger with a simple factorial multiplication :(
+     */
     public Integer digitSum(int n) {
         // save number on array for large numbers
         int maxLength = 100000;
+        int numberMaxLength = 100;
 
         int[] factorial = new int[maxLength];
         int[] result = new int[maxLength];
@@ -134,21 +155,21 @@ public class Challenges {
         int factorialLength = 1;
 
         for(int i=1;i<=n;++i) {
-            int[] number = new int [100];
+            int[] number = new int [numberMaxLength];
 
             Arrays.fill(result, 0);
 
             // save number into array
             String num = String.valueOf(i);
             for (int j=0; j < num.length(); ++j) {
-                number[99-j] = Integer.parseInt(String.valueOf(num.charAt(num.length()-j-1)));
+                number[(numberMaxLength - 1)-j] = Integer.parseInt(String.valueOf(num.charAt(num.length()-j-1)));
             }
 
             // do array multiplication
             int position = (maxLength-1);
-            for(int ni = 99; ni > 99 - num.length(); --ni) {
+            for(int ni = (numberMaxLength - 1); ni > (numberMaxLength - 1) - num.length(); --ni) {
                 for(int fi = (maxLength-1); fi > (maxLength-1) - factorialLength; --fi) {
-                    position = fi - (99 - ni);
+                    position = fi - ((numberMaxLength - 1) - ni);
                     int op = factorial[fi] * number[ni];
                     while (op >= 10) { op-=10; remainder++; }
 
@@ -201,8 +222,10 @@ public class Challenges {
     public String decrypt(List<Integer> ascivalues) {
         int sum = 0;
         StringBuilder strValue = new StringBuilder();
-        for(int i = 0; i < ascivalues.size(); ++i){
-            sum += ascivalues.get(i);
+
+        // Keep summing the values to find the numerical ascii repr of the character
+        for (Integer ascivalue : ascivalues) {
+            sum += ascivalue;
             strValue.append((char) sum);
         }
         return strValue.toString();
@@ -222,6 +245,7 @@ public class Challenges {
         int num = (int) text.charAt(0);
         ascivalues.add(num);
 
+        // apply the difference of the current integer with the previous to find the current integer ascii value
         for(int i = 1; i < text.length(); ++i) {
             num = (int) (text.charAt(i)) - (int) (text.charAt(i-1));
             ascivalues.add(num);

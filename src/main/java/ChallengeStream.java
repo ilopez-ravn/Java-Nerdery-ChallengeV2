@@ -69,6 +69,8 @@ public class ChallengeStream {
      * @returns {CallsResponse}  - Processed information
      */
     public TotalSummary calculateCost(List<CallCostObject> costObjectList) {
+
+        // We get the total calls grouping by type and then by the identifier so we get 5 calls correctly
          Integer totalCalls =
                 costObjectList.stream()
                         .collect(
@@ -79,6 +81,7 @@ public class ChallengeStream {
                                 }))
                         ).size();
 
+        // We get the cost based on the logic presented and ignore the 'Intern' calls
         List<CallSummary> callSummary = costObjectList.stream()
                .map(call -> {
                     int duration = call.getDuration();
@@ -91,7 +94,7 @@ public class ChallengeStream {
                             _totalCost =  3*1.2+(duration-3)*0.48;
                         else
                             _totalCost =  duration*1.2;
-                    } else if (type.equals("International")) { // Intern
+                    } else if (type.equals("International")) {
                         if(duration >= 3)
                             _totalCost =  3*7.56+(duration-3)*3.03;
                         else
