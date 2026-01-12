@@ -1,4 +1,5 @@
 /* (C)2024 */
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +25,7 @@ public class Challenges {
     public String readableTime(Integer seconds) {
         int minutes = 0;
         int hours = 0;
-        if(seconds >= 60 ) {
+        if (seconds >= 60) {
             minutes = seconds / 60;
             seconds %= 60;
         }
@@ -34,10 +35,11 @@ public class Challenges {
             minutes %= 60;
         }
 
-        return String.format("%02d",hours)+":"+
-                String.format("%02d",minutes)+":"+
-                String.format("%02d",seconds);
+        return String.format("%02d", hours) + ":" +
+                String.format("%02d", minutes) + ":" +
+                String.format("%02d", seconds);
     }
+
     ;
 
     /* *****
@@ -59,11 +61,12 @@ public class Challenges {
 
     public String[] circularArray(int index) {
         String[] COUNTRY_NAMES = {"Germany", "Norway", "Island", "Japan", "Israel"};
-        String[] COUNTRY_NAMES_CP = {"","","","",""};
-        for(int i = 0; i < COUNTRY_NAMES.length; ++i)
-            COUNTRY_NAMES_CP[i] = COUNTRY_NAMES[(index+i)%COUNTRY_NAMES.length];
+        String[] COUNTRY_NAMES_CP = {"", "", "", "", ""};
+        for (int i = 0; i < COUNTRY_NAMES.length; ++i)
+            COUNTRY_NAMES_CP[i] = COUNTRY_NAMES[(index + i) % COUNTRY_NAMES.length];
         return COUNTRY_NAMES_CP;
     }
+
     ;
 
     /* *****
@@ -96,24 +99,25 @@ public class Challenges {
 
     This could've been solved also using BigInteger
     */
-    public long Power(int n, int length) {
+    public long power(int n, int length) {
         long result = n;
         // Only save length digits
-        for(int i = 1; i < n; ++i) {
-            result = (result * n) % ((long) Math.pow(10,length));
+        for (int i = 1; i < n; ++i) {
+            result = (result * n) % ((long) Math.pow(10, length));
         }
         return result;
     }
 
     public String ownPower(int number, int lastDigits) {
         long result = 1;
-        for(int i=2; i<=number; ++i) {
-            result += Power(i, lastDigits+1);
+        for (int i = 2; i <= number; ++i) {
+            result += power(i, lastDigits + 1);
         }
 
         String resultString = String.valueOf(result);
-        return resultString.substring(resultString.length()-lastDigits);
+        return resultString.substring(resultString.length() - lastDigits);
     }
+
     ;
 
     /* *****
@@ -150,37 +154,40 @@ public class Challenges {
 
         int[] factorial = new int[maxLength];
         int[] result = new int[maxLength];
-        factorial[(maxLength-1)] = 1; // init value for mult
+        factorial[(maxLength - 1)] = 1; // init value for mult
         int remainder = 0;
         int factorialLength = 1;
 
-        for(int i=1;i<=n;++i) {
-            int[] number = new int [numberMaxLength];
+        for (int i = 1; i <= n; ++i) {
+            int[] number = new int[numberMaxLength];
 
             Arrays.fill(result, 0);
 
             // save number into array
             String num = String.valueOf(i);
-            for (int j=0; j < num.length(); ++j) {
-                number[(numberMaxLength - 1)-j] = Integer.parseInt(String.valueOf(num.charAt(num.length()-j-1)));
+            for (int j = 0; j < num.length(); ++j) {
+                number[(numberMaxLength - 1) - j] = Integer.parseInt(String.valueOf(num.charAt(num.length() - j - 1)));
             }
 
             // do array multiplication
-            int position = (maxLength-1);
-            for(int ni = (numberMaxLength - 1); ni > (numberMaxLength - 1) - num.length(); --ni) {
-                for(int fi = (maxLength-1); fi > (maxLength-1) - factorialLength; --fi) {
+            int position = (maxLength - 1);
+            for (int ni = (numberMaxLength - 1); ni > (numberMaxLength - 1) - num.length(); --ni) {
+                for (int fi = (maxLength - 1); fi > (maxLength - 1) - factorialLength; --fi) {
                     position = fi - ((numberMaxLength - 1) - ni);
                     int op = factorial[fi] * number[ni];
-                    while (op >= 10) { op-=10; remainder++; }
+                    while (op >= 10) {
+                        op -= 10;
+                        remainder++;
+                    }
 
                     result[position] += op;
-                    while (result[position] >= 10 ) {
+                    while (result[position] >= 10) {
                         result[position] -= 10;
                         remainder++;
                     }
-                    result[position-1] += remainder;
-                    if((maxLength-1)-factorialLength  == fi - 1 )
-                        if(remainder>0) position--;
+                    result[position - 1] += remainder;
+                    if ((maxLength - 1) - factorialLength == fi - 1)
+                        if (remainder > 0) position--;
                     remainder = 0;
                     position--;
                 }
@@ -195,7 +202,7 @@ public class Challenges {
         }
 
         StringBuilder strFact = new StringBuilder();
-        for(int i=(maxLength-1) - factorialLength - 1; i <= (maxLength-1); ++i) {
+        for (int i = (maxLength - 1) - factorialLength - 1; i <= (maxLength - 1); ++i) {
             strFact.append(result[i]);
         }
 
@@ -217,7 +224,7 @@ public class Challenges {
      * H = 72, the sum of H 72 and 33 gives 105 which ascii value is i;
      * The function must return the string encoded using the encryption function below.
      *
-     * @param ascivalues  hand, player2 hand
+     * @param ascivalues hand, player2 hand
      */
     public String decrypt(List<Integer> ascivalues) {
         int sum = 0;
@@ -238,7 +245,7 @@ public class Challenges {
      * // H = 72, the difference between the H and e is 29
      * The function must return an array of integer ascii values.
      *
-     * @param text  hand, player2 hand
+     * @param text hand, player2 hand
      */
     public List<Integer> encrypt(String text) {
         List<Integer> ascivalues = new ArrayList<>();
@@ -246,8 +253,8 @@ public class Challenges {
         ascivalues.add(num);
 
         // apply the difference of the current integer with the previous to find the current integer ascii value
-        for(int i = 1; i < text.length(); ++i) {
-            num = (int) (text.charAt(i)) - (int) (text.charAt(i-1));
+        for (int i = 1; i < text.length(); ++i) {
+            num = (int) (text.charAt(i)) - (int) (text.charAt(i - 1));
             ascivalues.add(num);
         }
         return ascivalues;

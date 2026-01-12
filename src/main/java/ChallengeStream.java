@@ -1,4 +1,5 @@
 /* (C)2024 */
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -16,23 +17,23 @@ public class ChallengeStream {
      * The winning number is calculated by which hard produces the highest two-digit number.
      *
      * calculateWinningHand([2, 5, 2, 6, 9], [3, 7, 3, 1, 2]) ➞ true
-     *  P1 can make the number 96
-     *  P2 can make the number 73
-     *  P1 win the round since 96 > 73
+     * P1 can make the number 96
+     * P2 can make the number 73
+     * P1 win the round since 96 > 73
      *
      * The function must return which player hand is the winner and the two-digit number produced. The solution must contain streams.
      *
-     * @param player1  hand, player2 hand
+     * @param player1 hand, player2 hand
      */
     public CardWinner calculateWinningHand(List<Integer> player1, List<Integer> player2) {
         String hand1 = player1.stream()
-                .sorted((a, b) -> b.compareTo(a) )
+                .sorted((a, b) -> b.compareTo(a))
                 .limit(2)
                 .map(Object::toString)
                 .collect(Collectors.joining(""));
 
         String hand2 = player2.stream()
-                .sorted((a, b) -> b.compareTo(a) )
+                .sorted((a, b) -> b.compareTo(a))
                 .limit(2)
                 .map(Object::toString)
                 .collect(Collectors.joining(""));
@@ -65,40 +66,39 @@ public class ChallengeStream {
      * and the total to pay taking into account all calls. The solution must be done only using streams.
      *
      * @param {Call[]} calls - Call's information to be processed
-     *
      * @returns {CallsResponse}  - Processed information
      */
     public TotalSummary calculateCost(List<CallCostObject> costObjectList) {
 
         // We get the total calls grouping by type and then by the identifier so we get 5 calls correctly
-         Integer totalCalls =
+        Integer totalCalls =
                 costObjectList.stream()
                         .collect(
                                 groupingBy((callCostObject -> {
                                     String type = callCostObject.getType();
                                     String identifier = callCostObject.getIdentifier().split("-")[0];
-                                    return type+"-"+identifier;
+                                    return type + "-" + identifier;
                                 }))
                         ).size();
 
         // We get the cost based on the logic presented and ignore the 'Intern' calls
         List<CallSummary> callSummary = costObjectList.stream()
-               .map(call -> {
+                .map(call -> {
                     int duration = call.getDuration();
                     double _totalCost = 0.0;
                     String type = call.getType();
                     if (type.equals("Local"))
-                        _totalCost =  duration * 0.2;
+                        _totalCost = duration * 0.2;
                     else if (type.equals("National")) {
-                        if(duration >= 3)
-                            _totalCost =  3*1.2+(duration-3)*0.48;
+                        if (duration >= 3)
+                            _totalCost = 3 * 1.2 + (duration - 3) * 0.48;
                         else
-                            _totalCost =  duration*1.2;
+                            _totalCost = duration * 1.2;
                     } else if (type.equals("International")) {
-                        if(duration >= 3)
-                            _totalCost =  3*7.56+(duration-3)*3.03;
+                        if (duration >= 3)
+                            _totalCost = 3 * 7.56 + (duration - 3) * 3.03;
                         else
-                            _totalCost =  duration*7.56;
+                            _totalCost = duration * 7.56;
                     }
 
 
