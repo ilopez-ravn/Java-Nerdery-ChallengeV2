@@ -206,7 +206,6 @@ public class Challenges {
             strFact.append(result[i]);
         }
 
-        System.out.println();
         int resultInt = 0;
         while (!strFact.isEmpty()) {
             int digit = Integer.parseInt(strFact.substring(0, 1));

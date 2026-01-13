@@ -25,30 +25,28 @@ public class ChallengeStream {
      *
      * @param player1 hand, player2 hand
      */
+
+    public String getHand(List<Integer> player) {
+        return player.stream()
+                .sorted((a, b) -> b.compareTo(a))
+                .limit(2)
+                .map(Object::toString)
+                .collect(Collectors.joining(""));
+    }
+
     public CardWinner calculateWinningHand(List<Integer> player1, List<Integer> player2) {
-        String hand1 = player1.stream()
-                .sorted((a, b) -> b.compareTo(a))
-                .limit(2)
-                .map(Object::toString)
-                .collect(Collectors.joining(""));
+        String hand1 = getHand(player1);
 
-        String hand2 = player2.stream()
-                .sorted((a, b) -> b.compareTo(a))
-                .limit(2)
-                .map(Object::toString)
-                .collect(Collectors.joining(""));
+        String hand2 = getHand(player2);
 
-        CardWinner winner;
         int hand1Int = Integer.parseInt(hand1),
                 hand2Int = Integer.parseInt(hand2);
         if (hand1Int > hand2Int)
-            winner = new CardWinner("P1", hand1Int);
+            return new CardWinner("P1", hand1Int);
         else if (hand2Int > hand1Int)
-            winner = new CardWinner("P2", hand2Int);
+            return new CardWinner("P2", hand2Int);
         else
-            winner = new CardWinner("TIE", hand1Int);
-
-        return winner;
+            return new CardWinner("TIE", hand1Int);
     }
 
     /**
@@ -69,7 +67,11 @@ public class ChallengeStream {
      * @returns {CallsResponse}  - Processed information
      */
     public TotalSummary calculateCost(List<CallCostObject> costObjectList) {
-
+        final double INTERNATION_PRICE = 3.03;
+        final double INTERNATION_PRICE_F3MIN = 7.56;
+        final double NATIONAL_PRICE = 0.48;
+        final double NATIONAL_PRICE_F3MIN = 1.2;
+        final double LOCAL_PRICE = 0.2;
         // We get the total calls grouping by type and then by the identifier so we get 5 calls correctly
         Integer totalCalls =
                 costObjectList.stream()
@@ -87,20 +89,19 @@ public class ChallengeStream {
                     int duration = call.getDuration();
                     double _totalCost = 0.0;
                     String type = call.getType();
-                    if (type.equals("Local"))
-                        _totalCost = duration * 0.2;
-                    else if (type.equals("National")) {
+                    if (type.equalsIgnoreCase("local"))
+                        _totalCost = duration * LOCAL_PRICE;
+                    else if (type.equalsIgnoreCase("national")) {
                         if (duration >= 3)
-                            _totalCost = 3 * 1.2 + (duration - 3) * 0.48;
+                            _totalCost = 3 * NATIONAL_PRICE_F3MIN + (duration - 3) * NATIONAL_PRICE;
                         else
-                            _totalCost = duration * 1.2;
-                    } else if (type.equals("International")) {
+                            _totalCost = duration * NATIONAL_PRICE_F3MIN;
+                    } else if (type.equalsIgnoreCase("international")) {
                         if (duration >= 3)
-                            _totalCost = 3 * 7.56 + (duration - 3) * 3.03;
+                            _totalCost = 3 * INTERNATION_PRICE_F3MIN + (duration - 3) * INTERNATION_PRICE;
                         else
-                            _totalCost = duration * 7.56;
+                            _totalCost = duration * INTERNATION_PRICE_F3MIN;
                     }
-
 
                     return new CallSummary(call, _totalCost);
 
