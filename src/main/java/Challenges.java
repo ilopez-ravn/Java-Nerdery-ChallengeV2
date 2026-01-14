@@ -149,8 +149,8 @@ public class Challenges {
      */
     public Integer digitSum(int n) {
         // save number on array for large numbers
-        int maxLength = 100000;
-        int numberMaxLength = 100;
+        final int maxLength = 100000;
+        final int numberMaxLength = 100;
 
         int[] factorial = new int[maxLength];
         int[] result = new int[maxLength];
@@ -232,7 +232,7 @@ public class Challenges {
         // Keep summing the values to find the numerical ascii repr of the character
         for (Integer ascivalue : ascivalues) {
             sum += ascivalue;
-            strValue.append((char) sum);
+            strValue.append(Character.toChars(sum));
         }
         return strValue.toString();
     }
@@ -248,12 +248,16 @@ public class Challenges {
      */
     public List<Integer> encrypt(String text) {
         List<Integer> ascivalues = new ArrayList<>();
-        int num = (int) text.charAt(0);
+
+        // Use .chars() to get the integer value of the characters into a streamInt
+        int[] textAscii = text.chars().toArray();
+
+        int num = textAscii[0];
         ascivalues.add(num);
 
         // apply the difference of the current integer with the previous to find the current integer ascii value
-        for (int i = 1; i < text.length(); ++i) {
-            num = (int) (text.charAt(i)) - (int) (text.charAt(i - 1));
+        for (int i = 1; i < textAscii.length; ++i) {
+            num = textAscii[i] - textAscii[i-1];
             ascivalues.add(num);
         }
         return ascivalues;

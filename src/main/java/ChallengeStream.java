@@ -66,12 +66,24 @@ public class ChallengeStream {
      * @param {Call[]} calls - Call's information to be processed
      * @returns {CallsResponse}  - Processed information
      */
+
+    public boolean compareType(String e_type, String type) {
+        return e_type.equalsIgnoreCase(type);
+    }
+
     public TotalSummary calculateCost(List<CallCostObject> costObjectList) {
         final double INTERNATION_PRICE = 3.03;
         final double INTERNATION_PRICE_F3MIN = 7.56;
         final double NATIONAL_PRICE = 0.48;
         final double NATIONAL_PRICE_F3MIN = 1.2;
         final double LOCAL_PRICE = 0.2;
+
+        enum call_type {
+            LOCAL,
+            NATIONAL,
+            INTERNATIONAL
+        };
+
         // We get the total calls grouping by type and then by the identifier so we get 5 calls correctly
         Integer totalCalls =
                 costObjectList.stream()
@@ -89,18 +101,23 @@ public class ChallengeStream {
                     int duration = call.getDuration();
                     double _totalCost = 0.0;
                     String type = call.getType();
-                    if (type.equalsIgnoreCase("local"))
+
+
+                    if (compareType(call_type.LOCAL.toString(), type))
                         _totalCost = duration * LOCAL_PRICE;
-                    else if (type.equalsIgnoreCase("national")) {
-                        if (duration >= 3)
-                            _totalCost = 3 * NATIONAL_PRICE_F3MIN + (duration - 3) * NATIONAL_PRICE;
-                        else
-                            _totalCost = duration * NATIONAL_PRICE_F3MIN;
-                    } else if (type.equalsIgnoreCase("international")) {
-                        if (duration >= 3)
-                            _totalCost = 3 * INTERNATION_PRICE_F3MIN + (duration - 3) * INTERNATION_PRICE;
-                        else
-                            _totalCost = duration * INTERNATION_PRICE_F3MIN;
+
+                    else if (compareType(call_type.NATIONAL.toString(), type)) {
+                        _totalCost = Math.min(duration, 3) * NATIONAL_PRICE_F3MIN;
+                        duration -= 3;
+                        if(duration > 0)
+                            _totalCost += duration * NATIONAL_PRICE;
+
+                    } else if (compareType(call_type.INTERNATIONAL.toString(), type)) {
+                        _totalCost = Math.min(duration, 3) * INTERNATION_PRICE_F3MIN;
+                        duration -= 3;
+                        if(duration > 0)
+                            _totalCost += duration * INTERNATION_PRICE;
+
                     }
 
                     return new CallSummary(call, _totalCost);
