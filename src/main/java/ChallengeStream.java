@@ -1,8 +1,14 @@
 /* (C)2024 */
-import java.util.List;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
 import mocks.CallCostObject;
+import mocks.CallSummary;
 import mocks.CardWinner;
 import mocks.TotalSummary;
+
+import static java.util.stream.Collectors.*;
 
 public class ChallengeStream {
 
@@ -11,17 +17,36 @@ public class ChallengeStream {
      * The winning number is calculated by which hard produces the highest two-digit number.
      *
      * calculateWinningHand([2, 5, 2, 6, 9], [3, 7, 3, 1, 2]) ➞ true
-     *  P1 can make the number 96
-     *  P2 can make the number 73
-     *  P1 win the round since 96 > 73
+     * P1 can make the number 96
+     * P2 can make the number 73
+     * P1 win the round since 96 > 73
      *
      * The function must return which player hand is the winner and the two-digit number produced. The solution must contain streams.
      *
-     * @param player1  hand, player2 hand
+     * @param player1 hand, player2 hand
      */
+
+    public String getHand(List<Integer> player) {
+        return player.stream()
+                .sorted((a, b) -> b.compareTo(a))
+                .limit(2)
+                .map(Object::toString)
+                .collect(Collectors.joining(""));
+    }
+
     public CardWinner calculateWinningHand(List<Integer> player1, List<Integer> player2) {
-        // YOUR CODE HERE...
-        return new CardWinner();
+        String hand1 = getHand(player1);
+
+        String hand2 = getHand(player2);
+
+        int hand1Int = Integer.parseInt(hand1),
+                hand2Int = Integer.parseInt(hand2);
+        if (hand1Int > hand2Int)
+            return new CardWinner("P1", hand1Int);
+        else if (hand2Int > hand1Int)
+            return new CardWinner("P2", hand2Int);
+        else
+            return new CardWinner("TIE", hand1Int);
     }
 
     /**
@@ -39,11 +64,70 @@ public class ChallengeStream {
      * and the total to pay taking into account all calls. The solution must be done only using streams.
      *
      * @param {Call[]} calls - Call's information to be processed
-     *
      * @returns {CallsResponse}  - Processed information
      */
+
+    public boolean compareType(String e_type, String type) {
+        return e_type.equalsIgnoreCase(type);
+    }
+
     public TotalSummary calculateCost(List<CallCostObject> costObjectList) {
-        // YOUR CODE HERE...
-        return new TotalSummary();
+        final double INTERNATION_PRICE = 3.03;
+        final double INTERNATION_PRICE_F3MIN = 7.56;
+        final double NATIONAL_PRICE = 0.48;
+        final double NATIONAL_PRICE_F3MIN = 1.2;
+        final double LOCAL_PRICE = 0.2;
+
+        enum call_type {
+            LOCAL,
+            NATIONAL,
+            INTERNATIONAL
+        };
+
+        // We get the total calls grouping by type and then by the identifier so we get 5 calls correctly
+        Integer totalCalls =
+                costObjectList.stream()
+                        .collect(
+                                groupingBy((callCostObject -> {
+                                    String type = callCostObject.getType();
+                                    String identifier = callCostObject.getIdentifier().split("-")[0];
+                                    return type + "-" + identifier;
+                                }))
+                        ).size();
+
+        // We get the cost based on the logic presented and ignore the 'Intern' calls
+        List<CallSummary> callSummary = costObjectList.stream()
+                .map(call -> {
+                    int duration = call.getDuration();
+                    double _totalCost = 0.0;
+                    String type = call.getType();
+
+
+                    if (compareType(call_type.LOCAL.toString(), type))
+                        _totalCost = duration * LOCAL_PRICE;
+
+                    else if (compareType(call_type.NATIONAL.toString(), type)) {
+                        _totalCost = Math.min(duration, 3) * NATIONAL_PRICE_F3MIN;
+                        duration -= 3;
+                        if(duration > 0)
+                            _totalCost += duration * NATIONAL_PRICE;
+
+                    } else if (compareType(call_type.INTERNATIONAL.toString(), type)) {
+                        _totalCost = Math.min(duration, 3) * INTERNATION_PRICE_F3MIN;
+                        duration -= 3;
+                        if(duration > 0)
+                            _totalCost += duration * INTERNATION_PRICE;
+
+                    }
+
+                    return new CallSummary(call, _totalCost);
+
+                }).toList();
+
+        Double totalCost = callSummary.stream()
+                .map(CallSummary::getTotalCost)
+                .reduce(0.0, Double::sum);
+
+        return new TotalSummary(callSummary, totalCalls, totalCost);
     }
 }

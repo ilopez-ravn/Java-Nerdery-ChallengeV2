@@ -1,6 +1,9 @@
 /* (C)2024 */
+
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 
 /* (C)2024 */
 public class Challenges {
@@ -20,9 +23,23 @@ public class Challenges {
     ***** */
 
     public String readableTime(Integer seconds) {
-        // YOUR CODE HERE...
-        return "";
+        int minutes = 0;
+        int hours = 0;
+        if (seconds >= 60) {
+            minutes = seconds / 60;
+            seconds %= 60;
+        }
+
+        if (minutes >= 60) {
+            hours = minutes / 60;
+            minutes %= 60;
+        }
+
+        return String.format("%02d", hours) + ":" +
+                String.format("%02d", minutes) + ":" +
+                String.format("%02d", seconds);
     }
+
     ;
 
     /* *****
@@ -44,9 +61,12 @@ public class Challenges {
 
     public String[] circularArray(int index) {
         String[] COUNTRY_NAMES = {"Germany", "Norway", "Island", "Japan", "Israel"};
-        // YOUR CODE HERE...
-        return COUNTRY_NAMES;
+        String[] COUNTRY_NAMES_CP = {"", "", "", "", ""};
+        for (int i = 0; i < COUNTRY_NAMES.length; ++i)
+            COUNTRY_NAMES_CP[i] = COUNTRY_NAMES[(index + i) % COUNTRY_NAMES.length];
+        return COUNTRY_NAMES_CP;
     }
+
     ;
 
     /* *****
@@ -69,10 +89,35 @@ public class Challenges {
     The last 3 digits for the sum of powers from 1 to 10 is "317"
     ***** */
 
-    public String ownPower(int number, int lastDigits) {
-        // YOUR CODE HERE...
-        return "";
+
+    /*
+    In my power function I manually multiply n times the n number
+    because I only want to save the `length` last digits because it's what I care about and
+    it will avoid the number to overflow.
+    This works because we only save the first (length+1) that we need.
+    I also pass the `length+1` to avoid loosing an important number
+
+    This could've been solved also using BigInteger
+    */
+    public long power(int n, int length) {
+        long result = n;
+        // Only save length digits
+        for (int i = 1; i < n; ++i) {
+            result = (result * n) % ((long) Math.pow(10, length));
+        }
+        return result;
     }
+
+    public String ownPower(int number, int lastDigits) {
+        long result = 1;
+        for (int i = 2; i <= number; ++i) {
+            result += power(i, lastDigits + 1);
+        }
+
+        String resultString = String.valueOf(result);
+        return resultString.substring(resultString.length() - lastDigits);
+    }
+
     ;
 
     /* *****
@@ -80,7 +125,7 @@ public class Challenges {
 
     "Sum of factorial digits"
 
-    A factorial (x!) means x! * (x - 1)... * 3 * 2 * 1.
+    A factorial (x!) means x * (x - 1)... * 3 * 2 * 1.
     For example: 10! = 10 × 9 × ... × 3 × 2 × 1 = 3628800
 
     Modify the function "digitSum" to return a number that
@@ -92,23 +137,104 @@ public class Challenges {
     Since 10! === 3628800 and you sum 3 + 6 + 2 + 8 + 8 + 0 + 0
     ***** */
 
+
+    /*
+    In this challenge as we will need to calculate big factorials,
+    the variable may overflow and approximations methods are of no use.
+
+    So, I decided to represent the numbers that I need to multiply as array where each position is a digit.
+    This makes the multiplication scalable for bigger numbers without big multiplications or memory overflows
+
+    This could've been solved also using BigInteger with a simple factorial multiplication :(
+     */
     public Integer digitSum(int n) {
-        // YOUR CODE HERE...
-        return 1;
+        // save number on array for large numbers
+        final int maxLength = 100000;
+        final int numberMaxLength = 100;
+
+        int[] factorial = new int[maxLength];
+        int[] result = new int[maxLength];
+        factorial[(maxLength - 1)] = 1; // init value for mult
+        int remainder = 0;
+        int factorialLength = 1;
+
+        for (int i = 1; i <= n; ++i) {
+            int[] number = new int[numberMaxLength];
+
+            Arrays.fill(result, 0);
+
+            // save number into array
+            String num = String.valueOf(i);
+            for (int j = 0; j < num.length(); ++j) {
+                number[(numberMaxLength - 1) - j] = Integer.parseInt(String.valueOf(num.charAt(num.length() - j - 1)));
+            }
+
+            // do array multiplication
+            int position = (maxLength - 1);
+            for (int ni = (numberMaxLength - 1); ni > (numberMaxLength - 1) - num.length(); --ni) {
+                for (int fi = (maxLength - 1); fi > (maxLength - 1) - factorialLength; --fi) {
+                    position = fi - ((numberMaxLength - 1) - ni);
+                    int op = factorial[fi] * number[ni];
+                    while (op >= 10) {
+                        op -= 10;
+                        remainder++;
+                    }
+
+                    result[position] += op;
+                    while (result[position] >= 10) {
+                        result[position] -= 10;
+                        remainder++;
+                    }
+                    result[position - 1] += remainder;
+                    if ((maxLength - 1) - factorialLength == fi - 1)
+                        if (remainder > 0) position--;
+                    remainder = 0;
+                    position--;
+                }
+
+            }
+
+            factorialLength = maxLength - position;
+
+            // copy value of result into factorial
+            factorial = result.clone();
+
+        }
+
+        StringBuilder strFact = new StringBuilder();
+        for (int i = (maxLength - 1) - factorialLength - 1; i <= (maxLength - 1); ++i) {
+            strFact.append(result[i]);
+        }
+
+        int resultInt = 0;
+        while (!strFact.isEmpty()) {
+            int digit = Integer.parseInt(strFact.substring(0, 1));
+            strFact = new StringBuilder(strFact.substring(1));
+            resultInt += digit;
+        }
+
+        return resultInt;
     }
 
     /**
      * Decryption.
-     * Create a decryption function that takes as parameter an array of ASCII values. The addition between values is the ascii value decrypted.
+     * Create a decryption function that takes as parameter an array of ASCII values.The addition between values is the ascii value decrypted.
      * decrypt([ 72, 33, -73, 84, -12, -3, 13, -13, -68 ]) ➞ "Hi there!"
      * H = 72, the sum of H 72 and 33 gives 105 which ascii value is i;
      * The function must return the string encoded using the encryption function below.
      *
-     * @param ascivalues  hand, player2 hand
+     * @param ascivalues hand, player2 hand
      */
     public String decrypt(List<Integer> ascivalues) {
-        // YOUR CODE HERE...
-        return "";
+        int sum = 0;
+        StringBuilder strValue = new StringBuilder();
+
+        // Keep summing the values to find the numerical ascii repr of the character
+        for (Integer ascivalue : ascivalues) {
+            sum += ascivalue;
+            strValue.append(Character.toChars(sum));
+        }
+        return strValue.toString();
     }
 
     /**
@@ -118,10 +244,22 @@ public class Challenges {
      * // H = 72, the difference between the H and e is 29
      * The function must return an array of integer ascii values.
      *
-     * @param text  hand, player2 hand
+     * @param text hand, player2 hand
      */
     public List<Integer> encrypt(String text) {
-        // YOUR CODE HERE...
-        return Collections.emptyList();
+        List<Integer> ascivalues = new ArrayList<>();
+
+        // Use .chars() to get the integer value of the characters into a streamInt
+        int[] textAscii = text.chars().toArray();
+
+        int num = textAscii[0];
+        ascivalues.add(num);
+
+        // apply the difference of the current integer with the previous to find the current integer ascii value
+        for (int i = 1; i < textAscii.length; ++i) {
+            num = textAscii[i] - textAscii[i-1];
+            ascivalues.add(num);
+        }
+        return ascivalues;
     }
 }
